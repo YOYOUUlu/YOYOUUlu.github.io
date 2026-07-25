@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Death Note 韩语音乐剧</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="song-sidebar" aria-label="歌曲列表">
+        <div class="sidebar-top">
+          <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="收起歌曲列表">‹</button>
+          <div class="sidebar-title">
+            <strong>Death Note</strong>
+            <span>韩语音乐剧</span>
+          </div>
+        </div>
+        <nav class="song-list" id="songList"></nav>
+      </aside>
+
+      <main class="content">
+        <header class="hero">
+          <button id="backButton" class="home-button" type="button" aria-label="返回上页" title="返回上页">←</button>
+          <div class="hero-copy">
+            <p class="musical-name">韩语音乐剧 · Death Note</p>
+            <div class="song-title-row">
+              <h1 id="songTitle">Death Note 韩语音乐剧</h1>
+            </div>
+            <div class="toolbar" aria-label="显示设置">
+              <button class="toggle is-active" type="button" data-toggle="showZh" aria-pressed="true">中文</button>
+              <button class="toggle is-active" type="button" data-toggle="showIpa" aria-pressed="true">罗马音</button>
+            </div>
+          </div>
+          <img class="hero-mark" src="assets/show-logo.png" alt="Death Note Logo" />
+        </header>
+
+        <label class="mobile-picker" for="songSelect">
+          <span>选择歌曲</span>
+          <select id="songSelect"></select>
+        </label>
+
+        <section class="lyrics" id="lyrics" aria-label="歌词"></section>
+      </main>
+    </div>
+
+    <script src="songs.js"></script>
+    <script src="lyrics-data.js"></script>
+    <script src="script.js"></script>
+    <script>
+      // 返回按钮：优先 history.back(), 若无法返回则跳转到上级索引
+      document.addEventListener('DOMContentLoaded', () => {
+        const back = document.getElementById('backButton');
+        if (!back) return;
+        back.addEventListener('click', () => {
+          try {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              window.location.href = '../index.html';
+            }
+          } catch {
+            window.location.href = '../index.html';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

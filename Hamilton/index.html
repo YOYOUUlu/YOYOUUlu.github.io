@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E49LJ5T1V6');
+
+      window.addEventListener('load', () => {
+        const analyticsScript = document.createElement('script');
+        analyticsScript.async = true;
+        analyticsScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-E49LJ5T1V6';
+        document.head.append(analyticsScript);
+      }, { once: true });
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="lyrics-data.js" as="script" />
+    <link rel="preload" href="word-data.js" as="script" fetchpriority="low" />
+    <title>Hamilton 中英歌词</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="effectCanvas" aria-hidden="true"></canvas>
+
+    <div class="app-shell">
+      <aside class="song-sidebar" aria-label="歌曲列表">
+        <div class="sidebar-top">
+          <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="收起歌曲列表" aria-expanded="true">‹</button>
+          <div class="sidebar-title">
+            <strong>Hamilton</strong>
+            <span>歌曲列表</span>
+          </div>
+        </div>
+        <nav class="song-list" id="songList"></nav>
+      </aside>
+
+      <main class="content">
+        <header class="hero">
+          <a class="home-button" href="../index.html" aria-label="返回音乐剧展示架" title="返回音乐剧展示架">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+          </a>
+          <div class="hero-copy">
+            <p class="musical-name">Hamilton</p>
+            <div class="song-title-row">
+              <h1 id="songTitle">Hamilton 中英歌词</h1>
+              <button class="song-play-button" id="songPlayButton" type="button" aria-label="连续播放本曲" aria-pressed="false" title="连续播放本曲">
+                <svg viewBox="0 0 28 24" aria-hidden="true">
+                  <path class="playlist-play-mark" d="M3.5 5.2v13.6l10-6.8z" />
+                  <path class="playlist-lines-mark" d="M16.5 6h8M16.5 12h8M16.5 18h8" />
+                  <rect class="playlist-stop-mark" x="8" y="6" width="12" height="12" rx="1.5" />
+                </svg>
+              </button>
+            </div>
+            <div class="toolbar" aria-label="显示设置">
+              <button class="toggle is-active" type="button" data-toggle="showZh" aria-pressed="true">中文</button>
+              <button class="toggle is-active" type="button" data-toggle="showIpa" aria-pressed="true">音标</button>
+            </div>
+          </div>
+          <img class="hero-mark" src="assets/Hamilton-Logo-1.svg" alt="Hamilton Logo" />
+        </header>
+
+        <label class="mobile-picker" for="songSelect">
+          <span>选择歌曲</span>
+          <select id="songSelect"></select>
+        </label>
+
+        <section class="lyrics" id="lyrics" aria-label="歌词"></section>
+      </main>
+    </div>
+
+    <aside class="word-popover" id="wordPopover" hidden></aside>
+    <button class="back-to-top" id="backToTop" type="button" aria-label="返回顶部" hidden>↑</button>
+
+    <script>
+      (() => {
+        const retryKey = `musical-site-retry:${window.location.pathname}`;
+        let reloadStarted = false;
+
+        function showLoadError() {
+          const render = () => {
+            if (document.querySelector("#criticalLoadError")) return;
+
+            const notice = document.createElement("aside");
+            notice.id = "criticalLoadError";
+            notice.setAttribute("role", "status");
+            notice.setAttribute("aria-live", "assertive");
+            notice.style.cssText = "position:fixed;left:50%;bottom:18px;z-index:100000;width:min(420px,calc(100% - 28px));padding:14px 16px;border:1px solid rgba(255,255,255,.22);border-radius:8px;color:#fff;background:rgba(20,16,14,.96);box-shadow:0 18px 48px rgba(0,0,0,.42);font:14px/1.6 system-ui,-apple-system,sans-serif;transform:translateX(-50%)";
+
+            const message = document.createElement("span");
+            message.textContent = "网络连接不稳定，页面资源未完整加载。请稍后重试，或切换网络。";
+
+            const retry = document.createElement("button");
+            retry.type = "button";
+            retry.textContent = "重新加载";
+            retry.style.cssText = "margin-left:12px;padding:6px 10px;border:1px solid rgba(255,255,255,.35);border-radius:6px;color:#fff;background:transparent;font:inherit;cursor:pointer";
+            retry.addEventListener("click", () => {
+              try {
+                sessionStorage.removeItem(retryKey);
+              } catch {}
+              window.location.reload();
+            });
+
+            notice.append(message, retry);
+            document.body.append(notice);
+          };
+
+          if (document.body) render();
+          else document.addEventListener("DOMContentLoaded", render, { once: true });
+        }
+
+        window.handleCriticalAssetError = () => {
+          if (reloadStarted) return;
+
+          let canRememberRetry = true;
+          let recentlyRetried = false;
+          const now = Date.now();
+
+          try {
+            const lastRetry = Number(sessionStorage.getItem(retryKey) || 0);
+            recentlyRetried = now - lastRetry < 30000;
+            if (!recentlyRetried) sessionStorage.setItem(retryKey, String(now));
+          } catch {
+            canRememberRetry = false;
+          }
+
+          if (canRememberRetry && !recentlyRetried) {
+            reloadStarted = true;
+            const retryUrl = new URL(window.location.href);
+            retryUrl.searchParams.set("_retry", String(now));
+            window.location.replace(retryUrl);
+            return;
+          }
+
+          showLoadError();
+        };
+
+        window.addEventListener("load", () => {
+          window.setTimeout(() => {
+            try {
+              sessionStorage.removeItem(retryKey);
+              const cleanUrl = new URL(window.location.href);
+              if (cleanUrl.searchParams.delete("_retry")) {
+                history.replaceState(null, "", cleanUrl);
+              }
+            } catch {}
+          }, 3000);
+        }, { once: true });
+      })();
+    </script>
+    <script src="lyrics-data.js" onerror="handleCriticalAssetError()"></script>
+    <script src="../shared/audio-playback.js" onerror="handleCriticalAssetError()"></script>
+    <script src="script.js" onerror="handleCriticalAssetError()"></script>
+  </body>
+</html>
